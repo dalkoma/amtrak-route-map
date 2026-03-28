@@ -80,7 +80,7 @@
   <div class="legend-item"><span class="legend-swatch" style="display:inline-block;width:24px;height:3px;background:#888;margin-top:8px;"></span>&nbsp;Siding</div>
   <div class="legend-item"><span style="font-size:16px;color:#d32f2f;">&#9679;</span>&nbsp;Amtrak Station</div>
   <div class="legend-item"><span style="font-size:14px;color:#1565c0;">&#9670;</span>&nbsp;Control Point</div>
-  <div class="legend-item"><span style="font-size:14px;color:#c62828;">&#10005;</span>&nbsp;Crossover</div>
+  <div class="legend-item"><svg width="16" height="18" viewBox="0 0 16 18" style="vertical-align:middle;"><line x1="2" y1="2" x2="14" y2="7" stroke="#c62828" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="11" x2="2" y2="16" stroke="#c62828" stroke-width="2" stroke-linecap="round"/></svg>&nbsp;Crossover</div>
   <div class="legend-item"><span class="legend-swatch" style="background:#1976d2;height:5px;width:28px;border-radius:3px;display:inline-block;"></span>&nbsp;Bridge</div>
   <div class="legend-item"><span style="font-size:13px;color:#e65100;font-weight:bold;">40</span>&nbsp;Speed (mph)</div>
   <div class="legend-item"><span style="font-size:11px;color:#9c27b0;font-weight:bold;">CTC</span>&nbsp;Method</div>
@@ -486,13 +486,14 @@ function drawSiding(svg, y1, y2, n, name, cap, side) {
   if (cap) tx(svg, lx, my + 10, cap, 8, '#999', anchor);
 }
 
-// ---- Crossover ----
+// ---- Crossover (two offset turnouts, not an X) ----
 function drawXO(svg, y, n) {
   if (n < 2) return;
-  var L = TX - GAP, R = TX + GAP, s = 9;
-  ln(svg, L, y - s, R, y + s, '#c62828', 2.5);
-  ln(svg, L, y + s, R, y - s, '#c62828', 2.5);
-  ci(svg, TX, y, 3.5, '#fff', '#c62828', 1.5);
+  var L = TX - GAP, R = TX + GAP, s = 7, g = 4;
+  // upper turnout: left track diagonal to right track
+  ln(svg, L, y - g - s, R, y - g, '#c62828', 2.5);
+  // lower turnout: right track diagonal to left track
+  ln(svg, R, y + g, L, y + g + s, '#c62828', 2.5);
 }
 
 // ---- Right-column label X ----
