@@ -465,20 +465,50 @@ function getTrackXs(n) {
   return [TX-GAP*1.5, TX-GAP*0.5, TX+GAP*0.5, TX+GAP*1.5];
 }
 
-// Draw convergence/divergence lines at a track-count transition.
+// Draw track transition at a count change.
 //
-// CONVERGING (more→fewer): diagonals go FROM y (end of wide section)
-//   DOWN to y+len (into the narrow section). Outer tracks funnel inward.
+// For 1↔2 track: one route is "through" (gentle slope, looks like continuation)
+// and one is the "switch leg" (steeper angle, clearly diverging).
 //
-// DIVERGING (fewer→more): diagonals go FROM y-len (within the narrow section)
-//   DOWN to y (start of wide section). Single track fans outward BEFORE the
-//   wider section begins — prevents offshoots from the narrow track endpoint.
-function drawTransition(p, y, fromN, toN) {
-  var col = '#1a1a1a', w = 3.5, len = 10;
-  var fromXs = getTrackXs(fromN);
-  var toXs   = getTrackXs(toN);
-  var drawn  = {};
+//   Default 1→2: M2 (right/TX+GAP) is through, M1 (left/TX-GAP) is switch leg
+//   Default 2→1: M1 (left/TX-GAP) is through, M2 (right/TX+GAP) is switch leg
+//
+// Pass `through` = 'M1' or 'M2' to override the default.
+// For other count combinations (3MT etc.) the generic nearest-neighbor is used.
+function drawTransition(p, y, fromN, toN, through) {
+  var col = '#1a1a1a', w = 3.5;
+  // lenThru: long vertical distance → shallow angle → looks like "straight through"
+  // lenSwch: short vertical distance → steep angle → looks like a switch/diverge
+  var lenThru = 28, lenSwch = 10;
 
+  if (fromN === 1 && toN === 2) {
+    // Single → Double  (diverging)
+    var thruRight = (through !== 'M1');  // default: M2 (right) is through
+    if (thruRight) {
+      ln(p, TX, y-lenThru, TX+GAP, y, col, w);  // M2 through (gentle)
+      ln(p, TX, y-lenSwch, TX-GAP, y, col, w);  // M1 switch leg (steep)
+    } else {
+      ln(p, TX, y-lenSwch, TX+GAP, y, col, w);  // M2 switch leg
+      ln(p, TX, y-lenThru, TX-GAP, y, col, w);  // M1 through (gentle)
+    }
+    return;
+  }
+
+  if (fromN === 2 && toN === 1) {
+    // Double → Single  (converging)
+    var thruLeft = (through !== 'M2');  // default: M1 (left) is through
+    if (thruLeft) {
+      ln(p, TX-GAP, y, TX, y+lenThru, col, w);  // M1 through (gentle)
+      ln(p, TX+GAP, y, TX, y+lenSwch, col, w);  // M2 switch leg (steep)
+    } else {
+      ln(p, TX+GAP, y, TX, y+lenThru, col, w);  // M2 through (gentle)
+      ln(p, TX-GAP, y, TX, y+lenSwch, col, w);  // M1 switch leg (steep)
+    }
+    return;
+  }
+
+  // Generic fallback for 3MT/4MT transitions
+  var fromXs = getTrackXs(fromN), toXs = getTrackXs(toN), drawn = {};
   function nearest(xs, val) {
     var best = xs[0];
     for (var i = 1; i < xs.length; i++) {
@@ -486,25 +516,15 @@ function drawTransition(p, y, fromN, toN) {
     }
     return best;
   }
-
   if (fromN > toN) {
-    // CONVERGING: each wider fromX → nearest narrower toX, drawn y→y+len
     for (var i = 0; i < fromXs.length; i++) {
       var fx = fromXs[i], tx_ = nearest(toXs, fx);
-      if (Math.abs(fx-tx_) > 1) {
-        var k = fx+'_'+tx_;
-        if (!drawn[k]) { drawn[k]=1; ln(p, fx, y, tx_, y+len, col, w); }
-      }
+      if (Math.abs(fx-tx_) > 1) { var k=fx+'_'+tx_; if (!drawn[k]) { drawn[k]=1; ln(p,fx,y,tx_,y+lenSwch,col,w); } }
     }
   } else {
-    // DIVERGING: each wider toX ← nearest narrower fromX, drawn y-len→y
-    // Lines emerge from within the narrow section and arrive at the wide section start.
     for (var j = 0; j < toXs.length; j++) {
       var tx2 = toXs[j], fx2 = nearest(fromXs, tx2);
-      if (Math.abs(tx2-fx2) > 1) {
-        var k2 = fx2+'_'+tx2;
-        if (!drawn[k2]) { drawn[k2]=1; ln(p, fx2, y-len, tx2, y, col, w); }
-      }
+      if (Math.abs(tx2-fx2) > 1) { var k2=fx2+'_'+tx2; if (!drawn[k2]) { drawn[k2]=1; ln(p,fx2,y-lenSwch,tx2,y,col,w); } }
     }
   }
 }
@@ -618,20 +638,20 @@ function buildSegment(seg) {
   }
 
   // Track segments
-  var tSegs = [], tc = 1, ty = yOf(0);
+  var tSegs = [], tc = 1, ty = yOf(0), tThru = undefined;
   for (var i = 0; i < seg.features.length; i++) {
     var ff = seg.features[i];
     if (ff.type === 'tracks') {
-      tSegs.push({y1:ty, y2:yOf(ff.rm), count:tc});
-      tc = ff.count; ty = yOf(ff.rm);
+      tSegs.push({y1:ty, y2:yOf(ff.rm), count:tc, through:tThru});
+      tc = ff.count; ty = yOf(ff.rm); tThru = ff.through;
     }
   }
-  tSegs.push({y1:ty, y2:yOf(seg.totalMiles), count:tc});
+  tSegs.push({y1:ty, y2:yOf(seg.totalMiles), count:tc, through:tThru});
   for (var j = 0; j < tSegs.length; j++) drawTracks(svg, tSegs[j].y1, tSegs[j].y2, tSegs[j].count);
   // Draw convergence/divergence at every track count change
   for (var jj = 1; jj < tSegs.length; jj++) {
     if (tSegs[jj].count !== tSegs[jj-1].count)
-      drawTransition(svg, tSegs[jj].y1, tSegs[jj-1].count, tSegs[jj].count);
+      drawTransition(svg, tSegs[jj].y1, tSegs[jj-1].count, tSegs[jj].count, tSegs[jj].through);
   }
 
   // Features
