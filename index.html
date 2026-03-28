@@ -6,381 +6,415 @@
 <title>Amtrak Route Map — LNK to OTM</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Courier New', monospace; background: #fff; color: #000; padding: 20px; }
-  h1 { text-align: center; font-size: 22px; margin-bottom: 4px; letter-spacing: 1px; }
-  .subtitle { text-align: center; font-size: 13px; margin-bottom: 20px; color: #444; }
+  body { font-family: 'Courier New', monospace; background: #f8f8f8; color: #000; }
+
+  #page-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  h1 { text-align: center; font-size: 26px; margin-bottom: 6px; letter-spacing: 2px; }
+  .subtitle { text-align: center; font-size: 13px; margin-bottom: 22px; color: #444; line-height: 1.6; }
 
   .legend {
-    display: flex; flex-wrap: wrap; gap: 18px; justify-content: center;
-    margin-bottom: 24px; font-size: 12px; border: 1px solid #bbb;
-    padding: 10px 16px; background: #fafafa;
+    display: flex; flex-wrap: wrap; gap: 14px 22px; justify-content: center;
+    margin-bottom: 20px; font-size: 13px; border: 1px solid #bbb;
+    padding: 12px 18px; background: #fff;
   }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-swatch { display: inline-block; }
+  .legend-item { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
 
   .toolbar {
-    position: sticky; top: 0; z-index: 100; background: #f5f5f5;
-    border: 1px solid #ccc; border-radius: 6px; padding: 6px 12px;
-    margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 100; background: #f0f0f0;
+    border: 1px solid #ccc; padding: 7px 14px;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
   .toolbar button {
-    font-family: 'Courier New', monospace; font-size: 14px; padding: 4px 12px;
-    border: 1px solid #999; border-radius: 4px; background: #fff;
-    cursor: pointer; min-width: 36px; line-height: 1.4;
+    font-family: 'Courier New', monospace; font-size: 15px; padding: 5px 14px;
+    border: 1px solid #999; background: #fff; cursor: pointer;
   }
-  .toolbar button:hover { background: #e8e8e8; }
-  .toolbar .zoom-label { font-size: 12px; color: #555; min-width: 48px; text-align: center; }
-  .toolbar .sep { width: 1px; height: 22px; background: #ccc; margin: 0 4px; }
-  .toolbar .hint { font-size: 10px; color: #888; margin-left: auto; }
+  .toolbar button:hover { background: #e0e0e0; }
+  .toolbar .zoom-label { font-size: 13px; color: #555; min-width: 52px; text-align: center; }
+  .toolbar .sep { width: 1px; height: 24px; background: #bbb; margin: 0 4px; }
+  .toolbar .hint { font-size: 11px; color: #999; margin-left: auto; }
 
+  .segment-wrapper { margin-top: 36px; background: #fff; border: 1px solid #ccc; }
   .segment-header {
-    background: #1a1a2e; color: #fff; padding: 8px 16px; font-size: 15px;
-    font-weight: bold; letter-spacing: 1px; margin-top: 30px; margin-bottom: 0;
+    background: #1a1a2e; color: #fff;
+    padding: 10px 18px; font-size: 17px; font-weight: bold; letter-spacing: 1px;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .segment-header .railroad { font-size: 11px; font-weight: normal; color: #aaa; }
+  .segment-header .sub { font-size: 12px; font-weight: normal; color: #aaa; text-align: right; line-height: 1.5; }
 
-  #map-container { transform-origin: top left; transition: transform 0.15s ease; }
-  svg { display: block; border: 1px solid #ccc; border-top: none; background: #fff; }
+  #map-container { transform-origin: top left; }
+  svg { display: block; }
 
   .tooltip {
     position: fixed; pointer-events: none; background: rgba(0,0,0,0.88); color: #fff;
-    padding: 6px 10px; border-radius: 4px; font-size: 12px; display: none;
-    z-index: 999; max-width: 300px; line-height: 1.4;
+    padding: 7px 12px; font-size: 13px; display: none;
+    z-index: 999; max-width: 340px; line-height: 1.5; font-family: 'Courier New', monospace;
   }
 
   @media print {
-    body { padding: 10px; }
+    body { background: #fff; }
+    #page-wrap { padding: 0; max-width: 100%; }
     .toolbar, .tooltip { display: none !important; }
-    #map-container { transform: none !important; }
-    .legend { border: 1px solid #000; break-inside: avoid; }
-    .segment-header { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; break-after: avoid; }
-    svg { break-inside: avoid; page-break-inside: avoid; max-width: 100% !important; }
-    .segment-wrapper { break-inside: avoid; page-break-inside: avoid; }
-    h1, .subtitle { break-after: avoid; }
+    #map-container { transform: none !important; width: 100% !important; }
+    h1 { font-size: 20px; }
+    .subtitle { font-size: 11px; margin-bottom: 14px; }
+    .legend { font-size: 11px; padding: 8px 12px; gap: 10px 16px; margin-bottom: 12px; }
+    .segment-wrapper { page-break-before: always; page-break-inside: auto; border: none; margin-top: 0; }
+    .segment-wrapper:first-of-type { page-break-before: avoid; }
+    .segment-header {
+      background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      page-break-after: avoid; font-size: 14px; padding: 7px 12px;
+    }
+    svg { width: 100% !important; max-width: 100% !important; height: auto !important; }
+    .cover-block { page-break-after: always; }
   }
-  @page { size: letter portrait; margin: 0.5in; }
+  @page { size: letter portrait; margin: 0.4in 0.5in; }
+
   @media (max-width: 700px) {
-    body { padding: 8px; } h1 { font-size: 17px; }
-    .legend { font-size: 10px; gap: 10px; padding: 6px 8px; }
-    .segment-header { font-size: 13px; padding: 6px 10px; }
+    h1 { font-size: 18px; }
+    .legend { font-size: 11px; }
     .toolbar .hint { display: none; }
   }
 </style>
 </head>
 <body>
+<div id="page-wrap">
 
-<h1>AMTRAK ROUTE MAP</h1>
-<div class="subtitle">Lincoln, NE (LNK) &mdash; Omaha, NE (OMA) &mdash; Creston, IA (CRN) &mdash; Osceola, IA (OSC) &mdash; Ottumwa, IA (OTM)<br>California Zephyr Corridor &mdash; Based on BNSF Timetables &amp; Track Charts</div>
+<div class="cover-block">
+  <h1>AMTRAK ROUTE MAP</h1>
+  <div class="subtitle">
+    Lincoln, NE (LNK) &mdash; Omaha, NE (OMA) &mdash; Creston, IA (CRN) &mdash; Osceola, IA (OSC) &mdash; Ottumwa, IA (OTM)<br>
+    California Zephyr Corridor &mdash; BNSF Creston Sub / Omaha Sub / Ottumwa Sub
+  </div>
 
-<div class="legend">
-  <div class="legend-item"><span class="legend-swatch" style="width:5px;height:20px;background:#222;display:inline-block;"></span>&nbsp;Single Main</div>
-  <div class="legend-item"><span style="display:inline-flex;gap:6px;"><span class="legend-swatch" style="width:4px;height:20px;background:#222;"></span><span class="legend-swatch" style="width:4px;height:20px;background:#222;"></span></span>&nbsp;Double Main (2MT)</div>
-  <div class="legend-item"><span style="display:inline-flex;gap:4px;"><span class="legend-swatch" style="width:3px;height:20px;background:#222;"></span><span class="legend-swatch" style="width:3px;height:20px;background:#222;"></span><span class="legend-swatch" style="width:3px;height:20px;background:#222;"></span></span>&nbsp;Triple Main (3MT)</div>
-  <div class="legend-item"><span class="legend-swatch" style="display:inline-block;width:24px;height:3px;background:#888;margin-top:8px;"></span>&nbsp;Siding</div>
-  <div class="legend-item"><span style="font-size:16px;color:#d32f2f;">&#9679;</span>&nbsp;Amtrak Station</div>
-  <div class="legend-item"><span style="font-size:14px;color:#1565c0;">&#9670;</span>&nbsp;Control Point</div>
-  <div class="legend-item"><svg width="16" height="18" viewBox="0 0 16 18" style="vertical-align:middle;"><line x1="2" y1="2" x2="14" y2="7" stroke="#c62828" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="11" x2="2" y2="16" stroke="#c62828" stroke-width="2" stroke-linecap="round"/></svg>&nbsp;Crossover</div>
-  <div class="legend-item"><span class="legend-swatch" style="background:#1976d2;height:5px;width:28px;border-radius:3px;display:inline-block;"></span>&nbsp;Bridge</div>
-  <div class="legend-item"><span style="font-size:13px;color:#e65100;font-weight:bold;">40</span>&nbsp;Speed (mph)</div>
-  <div class="legend-item"><span style="font-size:11px;color:#9c27b0;font-weight:bold;">CTC</span>&nbsp;Method</div>
-</div>
+  <div class="legend">
+    <div class="legend-item">
+      <svg width="6" height="24"><line x1="3" y1="0" x2="3" y2="24" stroke="#222" stroke-width="5"/></svg>
+      Single Main
+    </div>
+    <div class="legend-item">
+      <svg width="20" height="24">
+        <line x1="4"  y1="0" x2="4"  y2="24" stroke="#222" stroke-width="4"/>
+        <line x1="16" y1="0" x2="16" y2="24" stroke="#222" stroke-width="4"/>
+      </svg>
+      Double Main (2MT)
+    </div>
+    <div class="legend-item">
+      <svg width="30" height="24">
+        <line x1="3"  y1="0" x2="3"  y2="24" stroke="#222" stroke-width="3.5"/>
+        <line x1="15" y1="0" x2="15" y2="24" stroke="#222" stroke-width="3.5"/>
+        <line x1="27" y1="0" x2="27" y2="24" stroke="#222" stroke-width="3.5"/>
+      </svg>
+      Triple Main (3MT)
+    </div>
+    <div class="legend-item">
+      <svg width="34" height="24">
+        <line x1="6" y1="6"  x2="28" y2="6"  stroke="#888" stroke-width="2.5"/>
+        <line x1="6" y1="18" x2="28" y2="18" stroke="#888" stroke-width="2.5"/>
+        <line x1="6" y1="6"  x2="6"  y2="18" stroke="#555" stroke-width="1.5"/>
+        <line x1="28" y1="6" x2="28" y2="18" stroke="#555" stroke-width="1.5"/>
+      </svg>
+      Siding
+    </div>
+    <div class="legend-item">
+      <svg width="18" height="18"><circle cx="9" cy="9" r="8" fill="#d32f2f" stroke="#b71c1c" stroke-width="2"/><circle cx="9" cy="9" r="3" fill="#fff"/></svg>
+      Amtrak Station
+    </div>
+    <div class="legend-item">
+      <svg width="18" height="18"><polygon points="9,1 17,9 9,17 1,9" fill="#1565c0" stroke="#0d47a1" stroke-width="1.5"/></svg>
+      Control Point
+    </div>
+    <div class="legend-item">
+      <svg width="22" height="18">
+        <line x1="2" y1="2" x2="20" y2="16" stroke="#c62828" stroke-width="2.5"/>
+        <line x1="2" y1="16" x2="20" y2="2" stroke="#c62828" stroke-width="2.5"/>
+      </svg>
+      Crossover
+    </div>
+    <div class="legend-item">
+      <svg width="32" height="10"><rect x="0" y="3" width="32" height="4" rx="2" fill="#1976d2"/></svg>
+      Bridge
+    </div>
+    <div class="legend-item">
+      <span style="font-size:15px;color:#e65100;font-weight:bold;">60</span>&nbsp;Speed (mph)
+    </div>
+    <div class="legend-item">
+      <span style="font-size:12px;color:#7b1fa2;font-weight:bold;">CTC</span>&nbsp;Method
+    </div>
+    <div class="legend-item">
+      <svg width="32" height="10"><line x1="0" y1="5" x2="32" y2="5" stroke="#e65100" stroke-width="1.5" stroke-dasharray="4,3"/></svg>
+      Sub/MP Boundary
+    </div>
+  </div>
 
-<div class="toolbar" id="toolbar">
-  <button id="zoom-in" title="Zoom in">+</button>
-  <span class="zoom-label" id="zoom-label">100%</span>
-  <button id="zoom-out" title="Zoom out">-</button>
-  <button id="zoom-reset">Reset</button>
-  <div class="sep"></div>
-  <button id="zoom-fit">Fit Width</button>
-  <div class="sep"></div>
-  <button id="btn-print">Print</button>
-  <span class="hint">Scroll-wheel to zoom &nbsp;|&nbsp; Ctrl+P to print</span>
+  <div class="toolbar" id="toolbar">
+    <button id="zoom-in">+</button>
+    <span class="zoom-label" id="zoom-label">100%</span>
+    <button id="zoom-out">&minus;</button>
+    <button id="zoom-reset">Reset</button>
+    <div class="sep"></div>
+    <button id="zoom-fit">Fit Width</button>
+    <div class="sep"></div>
+    <button id="btn-print">Print</button>
+    <span class="hint">Ctrl+scroll to zoom &nbsp;|&nbsp; Ctrl+P to print</span>
+  </div>
 </div>
 
 <div id="map-container"></div>
+</div>
 <div class="tooltip" id="tooltip"></div>
 
 <script>
 // ============================================================
 // ROUTE DATA
-// LNK->Ashland: Creston Sub MP 0.9X -> 34.8
-// Ashland->OMA: Omaha Sub MP 46.7 -> 16.8
-// OMA->Oreapolis: Omaha Sub MP 16.8 -> 0.0
-// Oreapolis->W Pac Jct: Creston Sub MP 8.8 -> 0.0/475.1
-// W Pac Jct->CRN: Creston Sub MP 475.1 -> 393.5
-// CRN->OTM: Ottumwa Sub MP 392.9 -> 279.6
 // ============================================================
-
 const segments = [
 
-// ========== SEGMENT 1: LINCOLN to OMAHA ==========
+// ===== SEGMENT 1: LNK to OMA =====
 {
   id: 'LNK-OMA',
   title: 'LINCOLN (LNK) to OMAHA (OMA)',
-  subtitle: 'Creston Sub then Omaha Sub',
-  railroad: 'BNSF Railway',
+  sub: 'Creston Sub &rarr; Omaha Sub &nbsp;|&nbsp; BNSF Railway &nbsp;|&nbsp; ~56 mi',
   totalMiles: 56,
   features: [
-    { rm: 0,    type: 'station', name: 'Lincoln',      code: 'LNK', mp: 'MP 0.9X', amtrak: true },
+    { rm: 0,    type: 'station', name: 'Lincoln',           code: 'LNK', mp: 'MP 0.9X', amtrak: true },
     { rm: 0,    type: 'tracks',  count: 4, method: 'CTC 4MT' },
     { rm: 0,    type: 'speed',   speed: 25 },
-    { rm: 0.1,  type: 'point',   name: 'Haymarket',    mp: 'MP 0.9X' },
-    { rm: 0.2,  type: 'point',   name: 'Ballpark',     mp: 'MP 0.7X' },
-    { rm: 0.6,  type: 'subdiv',  name: 'MP Change: 0.0X / 58.8' },
-    { rm: 0.6,  type: 'point',   name: 'Baird',        mp: 'MP 0.3X / 58.8' },
+    { rm: 0.1,  type: 'point',   name: 'Haymarket',         mp: 'MP 0.9X' },
+    { rm: 0.2,  type: 'point',   name: 'Ballpark',          mp: 'MP 0.7X' },
+    { rm: 0.6,  type: 'subdiv',  name: 'MP Change: 0.0X > 58.8' },
+    { rm: 0.6,  type: 'point',   name: 'Baird',             mp: 'MP 0.3X / 58.8' },
     { rm: 0.6,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 2.6,  type: 'cp',      name: 'CP 568',       mp: 'MP 56.8' },
-    { rm: 4.6,  type: 'point',   name: 'Havelock',     mp: 'MP 54.8', note: 'Havelock Yard' },
-    { rm: 5.9,  type: 'cp',      name: 'CP 535',       mp: 'MP 53.5', crossover: true },
+    { rm: 2.6,  type: 'cp',      name: 'CP 568',            mp: 'MP 56.8' },
+    { rm: 4.6,  type: 'point',   name: 'Havelock',          mp: 'MP 54.8', note: 'Havelock Yard' },
+    { rm: 5.9,  type: 'cp',      name: 'CP 535',            mp: 'MP 53.5', crossover: true },
     { rm: 5.9,  type: 'speed',   speed: 50 },
     { rm: 10.3, type: 'siding_start', name: 'Waverly Siding', capacity: '6,635 ft', side: 'middle' },
-    { rm: 10.3, type: 'turnout', mp: 'MP 49.1', name: 'West Waverly' },
-    { rm: 11.4, type: 'point',   name: 'Waverly',      mp: 'MP 48.0' },
-    { rm: 11.8, type: 'turnout', mp: 'MP 47.6', name: 'East Waverly' },
+    { rm: 11.4, type: 'point',   name: 'Waverly',           mp: 'MP 48.0' },
     { rm: 11.8, type: 'siding_end' },
-    { rm: 14.1, type: 'point',   name: 'Mid America',  mp: 'MP 43.9' },
-    { rm: 17.3, type: 'point',   name: 'Greenwood',    mp: 'MP 42.1' },
-    { rm: 18.3, type: 'cp',      name: 'CP 411',       mp: 'MP 41.1', crossover: true },
-    { rm: 23.0, type: 'cp',      name: 'CP 364',       mp: 'MP 36.4' },
+    { rm: 14.1, type: 'point',   name: 'Mid America',       mp: 'MP 43.9' },
+    { rm: 17.3, type: 'point',   name: 'Greenwood',         mp: 'MP 42.1' },
+    { rm: 18.3, type: 'cp',      name: 'CP 411',            mp: 'MP 41.1', crossover: true },
+    { rm: 23.0, type: 'cp',      name: 'CP 364',            mp: 'MP 36.4' },
     { rm: 23.0, type: 'tracks',  count: 3, method: 'CTC 3MT' },
     { rm: 23.0, type: 'speed',   speed: 50 },
-    { rm: 23.3, type: 'point',   name: 'DED',          mp: 'MP 35.2' },
-    { rm: 24.3, type: 'point',   name: 'Ashland',      mp: 'MP 35.1', note: 'Sioux City Sub jct' },
-    { rm: 24.4, type: 'crossover', name: 'XAN Crossover', mp: 'MP 35.0' },
-    { rm: 24.6, type: 'subdiv',  name: 'CRESTON SUB >> OMAHA SUB' },
-    { rm: 24.6, type: 'point',   name: 'E Wye Ashland', mp: 'MP 34.8 / 46.7', note: 'MPF TO to Omaha Sub' },
+    { rm: 23.3, type: 'point',   name: 'DED',               mp: 'MP 35.2' },
+    { rm: 24.3, type: 'point',   name: 'Ashland',           mp: 'MP 35.1', note: 'Sioux City Sub jct' },
+    { rm: 24.4, type: 'crossover', name: 'XAN Crossover',   mp: 'MP 35.0' },
+    { rm: 24.6, type: 'subdiv',  name: 'CRESTON SUB > OMAHA SUB' },
+    { rm: 24.6, type: 'point',   name: 'E Wye Ashland',     mp: 'MP 34.8 / 46.7', note: 'MPF TO to Omaha Sub' },
     { rm: 24.6, type: 'tracks',  count: 1, method: 'CTC Single' },
     { rm: 24.6, type: 'speed',   speed: 50 },
     { rm: 29.9, type: 'siding_start', name: 'Melia Siding', capacity: '5,355 ft', side: 'right' },
-    { rm: 29.9, type: 'turnout', mp: 'MP 41.4', name: 'West Melia' },
-    { rm: 30.0, type: 'point',   name: 'Melia',        mp: 'MP 41.3' },
-    { rm: 31.1, type: 'turnout', mp: 'MP 40.2', name: 'East Melia' },
+    { rm: 30.0, type: 'point',   name: 'Melia',             mp: 'MP 41.3' },
     { rm: 31.1, type: 'siding_end' },
-    { rm: 33.8, type: 'point',   name: 'Gretna',       mp: 'MP 37.5' },
+    { rm: 33.8, type: 'point',   name: 'Gretna',            mp: 'MP 37.5' },
     { rm: 35.5, type: 'speed',   speed: 55 },
     { rm: 38.8, type: 'siding_start', name: 'Chalco Siding', capacity: '5,162 ft', side: 'right' },
-    { rm: 38.8, type: 'turnout', mp: 'MP 32.5', name: 'West Chalco' },
-    { rm: 39.3, type: 'point',   name: 'Chalco',       mp: 'MP 32.0' },
-    { rm: 39.9, type: 'turnout', mp: 'MP 31.4', name: 'East Chalco' },
+    { rm: 39.3, type: 'point',   name: 'Chalco',            mp: 'MP 32.0' },
     { rm: 39.9, type: 'siding_end' },
     { rm: 43.0, type: 'point',   name: 'Centech Bus. Park', mp: 'MP 30.5' },
-    { rm: 46.8, type: 'point',   name: 'Ralston',      mp: 'MP 24.5' },
+    { rm: 46.8, type: 'point',   name: 'Ralston',           mp: 'MP 24.5' },
     { rm: 49.3, type: 'speed',   speed: 50 },
     { rm: 50.0, type: 'siding_start', name: 'S. Omaha Siding', capacity: '7,117 ft', side: 'right' },
-    { rm: 50.0, type: 'turnout', mp: 'MP 21.3', name: 'West S. Omaha' },
-    { rm: 51.3, type: 'point',   name: 'South Omaha',  mp: 'MP 20.0' },
-    { rm: 51.5, type: 'turnout', mp: 'MP 19.8', name: 'East S. Omaha' },
+    { rm: 51.3, type: 'point',   name: 'South Omaha',       mp: 'MP 20.0' },
     { rm: 51.5, type: 'siding_end' },
     { rm: 51.8, type: 'speed',   speed: 30, note: 'fast act' },
-    { rm: 52.3, type: 'siding_start', name: 'Long Siding', capacity: '5,589 ft', side: 'right' },
-    { rm: 52.3, type: 'turnout', mp: 'MP 19.0', name: 'West Long Sdg' },
-    { rm: 53.3, type: 'point',   name: 'Long Siding',  mp: 'MP 18.0' },
-    { rm: 53.4, type: 'turnout', mp: 'MP 17.9', name: 'East Long Sdg' },
+    { rm: 52.3, type: 'siding_start', name: 'Long Siding',  capacity: '5,589 ft', side: 'right' },
+    { rm: 53.3, type: 'point',   name: 'Long Siding',       mp: 'MP 18.0' },
     { rm: 53.4, type: 'siding_end' },
     { rm: 53.5, type: 'speed',   speed: 20, note: 'fast act' },
-    { rm: 54.1, type: 'point',   name: 'West Omaha',   mp: 'MP 17.2' },
+    { rm: 54.1, type: 'point',   name: 'West Omaha',        mp: 'MP 17.2' },
     { rm: 54.1, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 55.5, type: 'station', name: 'Omaha',        code: 'OMA', mp: 'MP 16.8', amtrak: true },
+    { rm: 55.5, type: 'station', name: 'Omaha',             code: 'OMA', mp: 'MP 16.8', amtrak: true },
   ]
 },
 
-// ========== SEGMENT 2: OMAHA to CRESTON ==========
+// ===== SEGMENT 2: OMA to CRN =====
 {
   id: 'OMA-CRN',
   title: 'OMAHA (OMA) to CRESTON (CRN)',
-  subtitle: 'Omaha Sub then Creston Sub',
-  railroad: 'BNSF Railway',
+  sub: 'Omaha Sub &rarr; Creston Sub &nbsp;|&nbsp; BNSF Railway &nbsp;|&nbsp; ~108 mi',
   totalMiles: 108,
   features: [
-    { rm: 0,    type: 'station', name: 'Omaha',        code: 'OMA', mp: 'MP 16.8', amtrak: true },
-    { rm: 0,    type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 0,    type: 'speed',   speed: 20 },
-    { rm: 0.2,  type: 'cp',      name: 'East Omaha',   mp: 'MP 16.6', note: 'UP junction', crossover: true },
-    { rm: 0.8,  type: 'speed',   speed: 30 },
-    { rm: 1.9,  type: 'point',   name: 'Gibson',       mp: 'MP 14.9', note: 'Gibson Yard' },
-    { rm: 1.9,  type: 'tracks',  count: 1, method: 'CTC Single' },
-    { rm: 2.1,  type: 'speed',   speed: 60 },
-    { rm: 3.4,  type: 'point',   name: 'Missouri Ave', mp: 'MP 13.4' },
-    { rm: 8.7,  type: 'siding_start', name: 'Bellevue Siding', capacity: '7,140 ft', side: 'right' },
-    { rm: 8.7,  type: 'turnout', mp: 'MP 8.1', name: 'West Bellevue' },
-    { rm: 8.7,  type: 'speed',   speed: 65 },
-    { rm: 9.8,  type: 'point',   name: 'Bellevue',     mp: 'MP 7.0' },
-    { rm: 10.2, type: 'turnout', mp: 'MP 6.6', name: 'East Bellevue' },
-    { rm: 10.2, type: 'siding_end' },
-    { rm: 14.6, type: 'point',   name: 'LaPlatte',     mp: 'MP 2.2' },
-    { rm: 15.3, type: 'speed',   speed: 40 },
-    { rm: 16.4, type: 'point',   name: 'E Wye Oreapolis', mp: 'MP 0.4', note: 'Auto interlocking' },
-    { rm: 16.8, type: 'subdiv',  name: 'OMAHA SUB >> CRESTON SUB' },
-    { rm: 16.8, type: 'point',   name: 'Oreapolis',    mp: 'MP 0.0 / 8.8', note: 'Sub boundary' },
-    { rm: 16.8, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 16.8, type: 'speed',   speed: 40 },
-    { rm: 17.3, type: 'point',   name: 'W Wye Oreapolis', mp: 'MP 9.3' },
-    { rm: 20.6, type: 'point',   name: 'Plattsmouth',  mp: 'MP 5.0', note: 'Main Street at 5.0' },
-    { rm: 20.6, type: 'tracks',  count: 1, method: 'CTC Single' },
-    { rm: 20.6, type: 'speed',   speed: 40 },
-    { rm: 21.0, type: 'speed',   speed: 35 },
-    { rm: 22.5, type: 'siding_start', name: 'River Siding', capacity: '9,112 ft', note: 'MPF at each end', side: 'right' },
-    { rm: 22.5, type: 'turnout', mp: 'MP 4.3', name: 'West River' },
-    { rm: 23.6, type: 'point',   name: 'River',        mp: 'MP 3.0' },
-    { rm: 23.6, type: 'bridge',  name: 'Missouri River', mp: 'MP 3.8' },
-    { rm: 24.1, type: 'turnout', mp: 'MP 2.5', name: 'East River' },
-    { rm: 24.1, type: 'siding_end' },
-    { rm: 24.1, type: 'speed',   speed: 50 },
-    { rm: 25.6, type: 'subdiv',  name: 'MP Change: 0.0 / 475.1' },
-    { rm: 25.6, type: 'cp',      name: 'W Pacific Jct', mp: 'MP 0.2 / 475.1', note: 'MPF - CB & Napier Subs jct' },
-    { rm: 25.6, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 25.6, type: 'speed',   speed: 50 },
-    { rm: 26.9, type: 'point',   name: 'E Pacific Jct', mp: 'MP 473.8', note: 'Napier Sub jct' },
-    { rm: 28.9, type: 'point',   name: 'Glenwood',     mp: 'MP 471.8', note: 'DED 471.7' },
-    { rm: 32.8, type: 'point',   name: 'Balfour',      mp: 'MP 467.9', note: 'DED 466.4' },
-    { rm: 32.8, type: 'speed',   speed: 40 },
-    { rm: 34.3, type: 'cp',      name: 'CP 4664',      mp: 'MP 466.4', note: 'Radio chan change' },
-    { rm: 34.3, type: 'tracks',  count: 1, method: 'CTC Single' },
-    { rm: 38.6, type: 'point',   name: 'Malvern',      mp: 'MP 462.1' },
-    { rm: 42.7, type: 'cp',      name: 'CP 4580',      mp: 'MP 458.0', note: 'MPF  M2=main / M1=50mph TO' },
-    { rm: 42.7, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 42.7, type: 'speed',   speed: 50 },
-    { rm: 43.5, type: 'point',   name: 'Hastings',     mp: 'MP 457.2', note: 'DED 457.0' },
-    { rm: 47.2, type: 'cp',      name: 'CP 4535',      mp: 'MP 453.5', crossover: true },
-    { rm: 47.2, type: 'speed',   speed: 40 },
-    { rm: 49.1, type: 'point',   name: 'Emerson',      mp: 'MP 451.6', note: 'DED 450.3' },
-    { rm: 53.2, type: 'point',   name: 'McPherson',    mp: 'MP 447.5' },
-    { rm: 53.2, type: 'tracks',  count: 1, method: 'CTC Single' },
-    { rm: 53.2, type: 'speed',   speed: 40 },
-    { rm: 57.4, type: 'point',   name: 'Red Oak',      mp: 'MP 443.3', note: 'DED 441.4' },
-    { rm: 57.4, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 57.4, type: 'speed',   speed: 40 },
-    { rm: 64.0, type: 'cp',      name: 'CP 4367',      mp: 'MP 436.7', note: 'DED 436.7' },
-    { rm: 64.0, type: 'speed',   speed: 50 },
-    { rm: 65.3, type: 'point',   name: 'Stanton',      mp: 'MP 435.4', note: 'DED 431.5' },
-    { rm: 65.3, type: 'tracks',  count: 1, method: 'CTC Single' },
-    { rm: 71.8, type: 'cp',      name: 'CP 4289',      mp: 'MP 428.9' },
-    { rm: 71.8, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 71.8, type: 'speed',   speed: 50 },
-    { rm: 73.6, type: 'point',   name: 'Villisca',     mp: 'MP 427.1' },
-    { rm: 75.2, type: 'cp',      name: 'CP 4255',      mp: 'MP 425.5', crossover: true, note: 'DED 426.5' },
-    { rm: 75.2, type: 'speed',   speed: 40 },
-    { rm: 78.5, type: 'point',   name: 'Nodaway',      mp: 'MP 422.2' },
-    { rm: 78.5, type: 'tracks',  count: 1, method: 'CTC Single' },
-    { rm: 78.5, type: 'speed',   speed: 50 },
-    { rm: 82.9, type: 'point',   name: 'Brooks',       mp: 'MP 417.8' },
-    { rm: 85.3, type: 'point',   name: 'Corning Bus. Pk', mp: 'MP 415.3', note: 'DED 415.6' },
-    { rm: 87.0, type: 'point',   name: 'Corning',      mp: 'MP 413.7' },
-    { rm: 88.7, type: 'cp',      name: 'CP 4120',      mp: 'MP 412.0', note: 'MPF' },
-    { rm: 88.7, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 88.7, type: 'speed',   speed: 50 },
-    { rm: 91.8, type: 'cp',      name: 'CP 4089',      mp: 'MP 408.9', crossover: true, note: 'DED 410.0' },
-    { rm: 91.8, type: 'speed',   speed: 40 },
-    { rm: 94.0, type: 'point',   name: 'Prescott',     mp: 'MP 406.7' },
-    { rm: 95.0, type: 'cp',      name: 'CP 4057',      mp: 'MP 405.7', note: 'DED 405.0' },
-    { rm: 95.0, type: 'tracks',  count: 1, method: 'CTC Single' },
-    { rm: 95.0, type: 'speed',   speed: 50 },
-    { rm: 103.7, type: 'point',  name: 'Cromwell',     mp: 'MP 397.0' },
-    { rm: 105.5, type: 'cp',     name: 'CP 3952',      mp: 'MP 395.2', note: 'DED 394.0' },
-    { rm: 105.5, type: 'tracks', count: 2, method: 'CTC 2MT' },
-    { rm: 105.5, type: 'speed',  speed: 40 },
-    { rm: 106.5, type: 'speed',  speed: 30, note: '30 fast act EB' },
-    { rm: 107.5, type: 'station', name: 'Creston',     code: 'CRN', mp: 'MP 393.5 / 392.9', amtrak: true, note: 'CTC at 393.5 / Amtrak stop at 392.9' },
+    { rm: 0,     type: 'station', name: 'Omaha',            code: 'OMA', mp: 'MP 16.8', amtrak: true },
+    { rm: 0,     type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 0,     type: 'speed',   speed: 20 },
+    { rm: 0.2,   type: 'cp',      name: 'East Omaha',       mp: 'MP 16.6', note: 'UP junction', crossover: true },
+    { rm: 0.8,   type: 'speed',   speed: 30 },
+    { rm: 1.9,   type: 'point',   name: 'Gibson',           mp: 'MP 14.9', note: 'Gibson Yard' },
+    { rm: 1.9,   type: 'tracks',  count: 1, method: 'CTC Single' },
+    { rm: 2.1,   type: 'speed',   speed: 60 },
+    { rm: 3.4,   type: 'point',   name: 'Missouri Ave',     mp: 'MP 13.4' },
+    { rm: 8.7,   type: 'siding_start', name: 'Bellevue Siding', capacity: '7,140 ft', side: 'right' },
+    { rm: 8.7,   type: 'speed',   speed: 65 },
+    { rm: 9.8,   type: 'point',   name: 'Bellevue',         mp: 'MP 7.0' },
+    { rm: 10.2,  type: 'siding_end' },
+    { rm: 14.6,  type: 'point',   name: 'LaPlatte',         mp: 'MP 2.2' },
+    { rm: 15.3,  type: 'speed',   speed: 40 },
+    { rm: 16.4,  type: 'point',   name: 'E Wye Oreapolis',  mp: 'MP 0.4', note: 'Auto interlocking' },
+    { rm: 16.8,  type: 'subdiv',  name: 'OMAHA SUB > CRESTON SUB' },
+    { rm: 16.8,  type: 'point',   name: 'Oreapolis',        mp: 'MP 0.0 / 8.8', note: 'Sub boundary' },
+    { rm: 16.8,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 16.8,  type: 'speed',   speed: 40 },
+    { rm: 17.3,  type: 'point',   name: 'W Wye Oreapolis',  mp: 'MP 9.3' },
+    { rm: 20.6,  type: 'point',   name: 'Plattsmouth',      mp: 'MP 5.0', note: 'Main Street at 5.0' },
+    { rm: 20.6,  type: 'tracks',  count: 1, method: 'CTC Single' },
+    { rm: 20.6,  type: 'speed',   speed: 40 },
+    { rm: 21.0,  type: 'speed',   speed: 35 },
+    { rm: 22.5,  type: 'siding_start', name: 'River Siding', capacity: '9,112 ft', note: 'MPF at each end', side: 'right' },
+    { rm: 23.6,  type: 'point',   name: 'River',            mp: 'MP 3.0' },
+    { rm: 23.6,  type: 'bridge',  name: 'Missouri River',   mp: 'MP 3.8' },
+    { rm: 24.1,  type: 'siding_end' },
+    { rm: 24.1,  type: 'speed',   speed: 50 },
+    { rm: 25.6,  type: 'subdiv',  name: 'MP Change: 0.0 > 475.1' },
+    { rm: 25.6,  type: 'cp',      name: 'W Pacific Jct',    mp: 'MP 0.2 / 475.1', note: 'MPF - CB & Napier Subs jct' },
+    { rm: 25.6,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 25.6,  type: 'speed',   speed: 50 },
+    { rm: 26.9,  type: 'point',   name: 'E Pacific Jct',    mp: 'MP 473.8', note: 'Napier Sub jct' },
+    { rm: 28.9,  type: 'point',   name: 'Glenwood',         mp: 'MP 471.8', note: 'DED 471.7' },
+    { rm: 32.8,  type: 'point',   name: 'Balfour',          mp: 'MP 467.9', note: 'DED 466.4' },
+    { rm: 32.8,  type: 'speed',   speed: 40 },
+    { rm: 34.3,  type: 'cp',      name: 'CP 4664',          mp: 'MP 466.4', note: 'Radio chan change' },
+    { rm: 34.3,  type: 'tracks',  count: 1, method: 'CTC Single' },
+    { rm: 38.6,  type: 'point',   name: 'Malvern',          mp: 'MP 462.1' },
+    { rm: 42.7,  type: 'cp',      name: 'CP 4580',          mp: 'MP 458.0', note: 'MPF - M2=main / M1=50mph TO' },
+    { rm: 42.7,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 42.7,  type: 'speed',   speed: 50 },
+    { rm: 43.5,  type: 'point',   name: 'Hastings',         mp: 'MP 457.2', note: 'DED 457.0' },
+    { rm: 47.2,  type: 'cp',      name: 'CP 4535',          mp: 'MP 453.5', crossover: true },
+    { rm: 47.2,  type: 'speed',   speed: 40 },
+    { rm: 49.1,  type: 'point',   name: 'Emerson',          mp: 'MP 451.6', note: 'DED 450.3' },
+    { rm: 53.2,  type: 'point',   name: 'McPherson',        mp: 'MP 447.5' },
+    { rm: 53.2,  type: 'tracks',  count: 1, method: 'CTC Single' },
+    { rm: 53.2,  type: 'speed',   speed: 40 },
+    { rm: 57.4,  type: 'point',   name: 'Red Oak',          mp: 'MP 443.3', note: 'DED 441.4' },
+    { rm: 57.4,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 57.4,  type: 'speed',   speed: 40 },
+    { rm: 64.0,  type: 'cp',      name: 'CP 4367',          mp: 'MP 436.7', note: 'DED 436.7' },
+    { rm: 64.0,  type: 'speed',   speed: 50 },
+    { rm: 65.3,  type: 'point',   name: 'Stanton',          mp: 'MP 435.4', note: 'DED 431.5' },
+    { rm: 65.3,  type: 'tracks',  count: 1, method: 'CTC Single' },
+    { rm: 71.8,  type: 'cp',      name: 'CP 4289',          mp: 'MP 428.9' },
+    { rm: 71.8,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 71.8,  type: 'speed',   speed: 50 },
+    { rm: 73.6,  type: 'point',   name: 'Villisca',         mp: 'MP 427.1' },
+    { rm: 75.2,  type: 'cp',      name: 'CP 4255',          mp: 'MP 425.5', crossover: true, note: 'DED 426.5' },
+    { rm: 75.2,  type: 'speed',   speed: 40 },
+    { rm: 78.5,  type: 'point',   name: 'Nodaway',          mp: 'MP 422.2' },
+    { rm: 78.5,  type: 'tracks',  count: 1, method: 'CTC Single' },
+    { rm: 78.5,  type: 'speed',   speed: 50 },
+    { rm: 82.9,  type: 'point',   name: 'Brooks',           mp: 'MP 417.8' },
+    { rm: 85.3,  type: 'point',   name: 'Corning Bus. Pk',  mp: 'MP 415.3', note: 'DED 415.6' },
+    { rm: 87.0,  type: 'point',   name: 'Corning',          mp: 'MP 413.7' },
+    { rm: 88.7,  type: 'cp',      name: 'CP 4120',          mp: 'MP 412.0', note: 'MPF' },
+    { rm: 88.7,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 88.7,  type: 'speed',   speed: 50 },
+    { rm: 91.8,  type: 'cp',      name: 'CP 4089',          mp: 'MP 408.9', crossover: true, note: 'DED 410.0' },
+    { rm: 91.8,  type: 'speed',   speed: 40 },
+    { rm: 94.0,  type: 'point',   name: 'Prescott',         mp: 'MP 406.7' },
+    { rm: 95.0,  type: 'cp',      name: 'CP 4057',          mp: 'MP 405.7', note: 'DED 405.0' },
+    { rm: 95.0,  type: 'tracks',  count: 1, method: 'CTC Single' },
+    { rm: 95.0,  type: 'speed',   speed: 50 },
+    { rm: 103.7, type: 'point',   name: 'Cromwell',         mp: 'MP 397.0' },
+    { rm: 105.5, type: 'cp',      name: 'CP 3952',          mp: 'MP 395.2', note: 'DED 394.0' },
+    { rm: 105.5, type: 'tracks',  count: 2, method: 'CTC 2MT' },
+    { rm: 105.5, type: 'speed',   speed: 40 },
+    { rm: 106.5, type: 'speed',   speed: 30, note: '30 fast act EB' },
+    { rm: 107.5, type: 'station', name: 'Creston',          code: 'CRN', mp: 'MP 393.5 / 392.9', amtrak: true, note: 'CTC at 393.5 / stop at 392.9' },
   ]
 },
 
-// ========== SEGMENT 3: CRESTON to OSCEOLA ==========
+// ===== SEGMENT 3: CRN to OSC =====
 {
   id: 'CRN-OSC',
   title: 'CRESTON (CRN) to OSCEOLA (OSC)',
-  subtitle: 'Ottumwa Subdivision',
-  railroad: 'BNSF - Chicago Division',
+  sub: 'Ottumwa Subdivision &nbsp;|&nbsp; BNSF Chicago Division &nbsp;|&nbsp; ~34 mi',
   totalMiles: 34,
   features: [
-    { rm: 0,    type: 'station', name: 'Creston',      code: 'CRN', mp: 'MP 392.9', amtrak: true },
+    { rm: 0,    type: 'station', name: 'Creston',           code: 'CRN', mp: 'MP 392.9', amtrak: true },
     { rm: 0,    type: 'tracks',  count: 2, method: 'TWC 2MT' },
     { rm: 0,    type: 'speed',   speed: 79, note: 'Psgr 79 / Frt 60' },
     { rm: 1.9,  type: 'point',   name: 'Heartland Jur. End', mp: 'MP 391.0' },
-    { rm: 9.2,  type: 'point',   name: 'Afton',        mp: 'MP 383.7' },
-    { rm: 11.1, type: 'cp',      name: 'CP 3818',      mp: 'MP 381.8', crossover: true },
+    { rm: 9.2,  type: 'point',   name: 'Afton',             mp: 'MP 383.7' },
+    { rm: 11.1, type: 'cp',      name: 'CP 3818',           mp: 'MP 381.8', crossover: true },
     { rm: 11.1, type: 'tracks',  count: 2, method: 'CTC 2MT' },
     { rm: 11.1, type: 'speed',   speed: 40, note: 'crossover speed' },
     { rm: 12.0, type: 'tracks',  count: 2, method: 'TWC 2MT' },
     { rm: 12.0, type: 'speed',   speed: 79 },
-    { rm: 16.8, type: 'point',   name: 'Thayer',       mp: 'MP 376.1' },
-    { rm: 22.6, type: 'point',   name: 'Murray',       mp: 'MP 370.3' },
-    { rm: 33.0, type: 'station', name: 'Osceola',      code: 'OSC', mp: 'MP 359.9', amtrak: true, note: 'Do not arrive WB before 20:19' },
+    { rm: 16.8, type: 'point',   name: 'Thayer',            mp: 'MP 376.1' },
+    { rm: 22.6, type: 'point',   name: 'Murray',            mp: 'MP 370.3' },
+    { rm: 33.0, type: 'station', name: 'Osceola',           code: 'OSC', mp: 'MP 359.9', amtrak: true, note: 'WB: do not arrive before 20:19' },
   ]
 },
 
-// ========== SEGMENT 4: OSCEOLA to OTTUMWA ==========
+// ===== SEGMENT 4: OSC to OTM =====
 {
   id: 'OSC-OTM',
   title: 'OSCEOLA (OSC) to OTTUMWA (OTM)',
-  subtitle: 'Ottumwa Subdivision',
-  railroad: 'BNSF - Chicago Division',
+  sub: 'Ottumwa Subdivision &nbsp;|&nbsp; BNSF Chicago Division &nbsp;|&nbsp; ~82 mi',
   totalMiles: 82,
   features: [
-    { rm: 0,    type: 'station', name: 'Osceola',      code: 'OSC', mp: 'MP 359.9', amtrak: true },
+    { rm: 0,    type: 'station', name: 'Osceola',           code: 'OSC', mp: 'MP 359.9', amtrak: true },
     { rm: 0,    type: 'tracks',  count: 2, method: 'TWC 2MT' },
     { rm: 0,    type: 'speed',   speed: 79, note: 'Psgr 79 / Frt 60' },
-    { rm: 3.0,  type: 'cp',      name: 'CP 3569',      mp: 'MP 356.9', crossover: true },
+    { rm: 3.0,  type: 'cp',      name: 'CP 3569',           mp: 'MP 356.9', crossover: true },
     { rm: 3.0,  type: 'tracks',  count: 2, method: 'CTC 2MT' },
     { rm: 6.0,  type: 'speed',   speed: 70, note: 'M1' },
-    { rm: 9.3,  type: 'point',   name: 'Woodburn',     mp: 'MP 350.6' },
+    { rm: 9.3,  type: 'point',   name: 'Woodburn',          mp: 'MP 350.6' },
     { rm: 9.3,  type: 'tracks',  count: 2, method: 'TWC 2MT' },
     { rm: 14.4, type: 'speed',   speed: 70 },
-    { rm: 16.9, type: 'point',   name: 'Lucas',        mp: 'MP 343.0' },
-    { rm: 17.8, type: 'point',   name: 'Shannon',      mp: 'MP 342.1' },
-    { rm: 19.9, type: 'speed',   speed: 50, note: 'M1 50 fast act EB' },
-    { rm: 25.3, type: 'point',   name: 'Chariton',     mp: 'MP 334.6' },
-    { rm: 25.3, type: 'crossover', name: 'Hand Throw XO', mp: 'MP 334.6' },
-    { rm: 25.3, type: 'speed',   speed: 40, note: '40 fast act EB' },
+    { rm: 16.9, type: 'point',   name: 'Lucas',             mp: 'MP 343.0' },
+    { rm: 17.8, type: 'point',   name: 'Shannon',           mp: 'MP 342.1' },
+    { rm: 19.9, type: 'speed',   speed: 50, note: 'M1 fast act EB' },
+    { rm: 25.3, type: 'point',   name: 'Chariton',          mp: 'MP 334.6' },
+    { rm: 25.3, type: 'crossover', name: 'Hand Throw XO',   mp: 'MP 334.6' },
+    { rm: 25.3, type: 'speed',   speed: 40, note: 'fast act EB' },
     { rm: 25.8, type: 'speed',   speed: 70 },
-    { rm: 32.5, type: 'point',   name: 'Russell',      mp: 'MP 327.4' },
-    { rm: 36.7, type: 'speed',   speed: 55, note: '55 fast act EB' },
-    { rm: 41.1, type: 'point',   name: 'Melrose',      mp: 'MP 318.8' },
-    { rm: 41.1, type: 'crossover', name: 'Hand Throw XO', mp: 'MP 318.9' },
+    { rm: 32.5, type: 'point',   name: 'Russell',           mp: 'MP 327.4' },
+    { rm: 36.7, type: 'speed',   speed: 55, note: 'fast act EB' },
+    { rm: 41.1, type: 'point',   name: 'Melrose',           mp: 'MP 318.8' },
+    { rm: 41.1, type: 'crossover', name: 'Hand Throw XO',   mp: 'MP 318.9' },
     { rm: 41.1, type: 'speed',   speed: 65 },
-    { rm: 50.1, type: 'cp',      name: 'Halpin',       mp: 'MP 309.8', note: 'Radio chan change' },
+    { rm: 50.1, type: 'cp',      name: 'Halpin',            mp: 'MP 309.8', note: 'Radio chan change' },
     { rm: 50.1, type: 'tracks',  count: 2, method: 'CTC 2MT' },
-    { rm: 50.1, type: 'speed',   speed: 60, note: 'M2 60 / M1 70' },
-    { rm: 56.1, type: 'point',   name: 'Albia',        mp: 'MP 303.8', note: 'Des Moines Sub jct' },
-    { rm: 56.1, type: 'speed',   speed: 40, note: '40 fast act M1' },
-    { rm: 59.1, type: 'cp',      name: 'Maxon',        mp: 'MP 300.8', crossover: true },
+    { rm: 50.1, type: 'speed',   speed: 60, note: 'M2=60 / M1=70' },
+    { rm: 56.1, type: 'point',   name: 'Albia',             mp: 'MP 303.8', note: 'Des Moines Sub jct' },
+    { rm: 56.1, type: 'speed',   speed: 40, note: 'fast act M1' },
+    { rm: 59.1, type: 'cp',      name: 'Maxon',             mp: 'MP 300.8', crossover: true },
     { rm: 59.1, type: 'speed',   speed: 79, note: 'M1' },
-    { rm: 66.3, type: 'point',   name: 'Cargill Spur', mp: 'MP 293.6' },
-    { rm: 71.0, type: 'cp',      name: 'CP 2888',      mp: 'MP 288.9', note: 'E end 4mi bridge at 284' },
+    { rm: 66.3, type: 'point',   name: 'Cargill Spur',      mp: 'MP 293.6' },
+    { rm: 71.0, type: 'cp',      name: 'CP 2888',           mp: 'MP 288.9', note: '4mi Des Moines River bridge ~MP 284' },
     { rm: 71.0, type: 'speed',   speed: 50 },
-    { rm: 76.5, type: 'cp',      name: 'CP 2833',      mp: 'MP 283.4' },
+    { rm: 76.5, type: 'cp',      name: 'CP 2833',           mp: 'MP 283.4' },
     { rm: 76.5, type: 'speed',   speed: 45 },
-    { rm: 78.5, type: 'bridge',  name: 'Des Moines River', mp: 'MP ~281' },
+    { rm: 78.5, type: 'bridge',  name: 'Des Moines River',  mp: 'MP ~281' },
     { rm: 79.5, type: 'speed',   speed: 40 },
-    { rm: 81.0, type: 'station', name: 'Ottumwa',      code: 'OTM', mp: 'MP 279.6', amtrak: true, note: 'Do not use M2 platform' },
+    { rm: 81.0, type: 'station', name: 'Ottumwa',           code: 'OTM', mp: 'MP 279.6', amtrak: true, note: 'Do not use M2 platform' },
   ]
 }
+
 ];
 
 // ============================================================
-// RENDERING ENGINE
+// RENDERING CONSTANTS
 // ============================================================
+var TX   = 420;   // track center X
+var PPM  = 42;    // pixels per route-mile
+var TPAD = 70;    // top & bottom padding
+var GAP  = 22;    // half-gap between 2MT mains
+var SOFF = 44;    // siding offset from outer main
+var WID  = 1150;  // SVG canvas width
+var MLBL = 22;    // minimum vertical gap between labels
 
-const TX   = 340;  // track centerline X
-const PPM  = 22;   // pixels per route-mile
-const TPAD = 60;   // top/bottom padding
-const GAP  = 18;   // half-gap between double-track mains (M1/M2)
-const SOFF = 36;   // siding offset from outer main edge
-const WID  = 820;  // SVG width
-const MLBL = 19;   // minimum vertical gap between labels (px)
-
-const container = document.getElementById('map-container');
-const tooltip   = document.getElementById('tooltip');
+var container = document.getElementById('map-container');
+var tooltip   = document.getElementById('tooltip');
 
 function yOf(rm) { return TPAD + rm * PPM; }
 
-// ---- Label row tracker ----
-// Prevents text labels from stacking on top of each other.
-// 'L' = left column (speed/method), 'R' = right column (names/notes)
 function makeRows() { return { L: [], R: [] }; }
 function claimY(y, col, rows) {
-  var arr = rows[col];
-  var cy = y;
+  var arr = rows[col], cy = y;
   for (var i = 0; i < arr.length; i++) {
     if (Math.abs(cy - arr[i]) < MLBL) cy = arr[i] + MLBL;
   }
@@ -388,146 +422,128 @@ function claimY(y, col, rows) {
   return cy;
 }
 
-// ---- SVG helpers ----
-function svgEl(svg, tag, attrs) {
+function svgEl(parent, tag, attrs) {
   var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
   for (var k in attrs) el.setAttribute(k, attrs[k]);
-  svg.appendChild(el);
+  parent.appendChild(el);
   return el;
 }
-function ln(svg, x1, y1, x2, y2, stroke, sw, dash) {
-  var a = { x1:x1, y1:y1, x2:x2, y2:y2, stroke:stroke||'#000', 'stroke-width':sw||1, 'stroke-linecap':'round' };
+function ln(p, x1, y1, x2, y2, stroke, sw, dash) {
+  var a = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:stroke||'#000', 'stroke-width':sw||1, 'stroke-linecap':'round'};
   if (dash) a['stroke-dasharray'] = dash;
-  return svgEl(svg, 'line', a);
+  return svgEl(p, 'line', a);
 }
-function ci(svg, cx, cy, r, fill, stroke, sw) {
-  return svgEl(svg, 'circle', { cx:cx, cy:cy, r:r, fill:fill||'none', stroke:stroke||'none', 'stroke-width':sw||1 });
+function ci(p, cx, cy, r, fill, stroke, sw) {
+  return svgEl(p, 'circle', {cx:cx, cy:cy, r:r, fill:fill||'none', stroke:stroke||'none', 'stroke-width':sw||1});
 }
-function tx(svg, x, y, content, size, fill, anchor, bold) {
-  var t = svgEl(svg, 'text', { x:x, y:y, 'font-size':size||12, fill:fill||'#000',
-    'font-family':"'Courier New', monospace", 'text-anchor':anchor||'start' });
+function txt(p, x, y, str, size, fill, anchor, bold) {
+  var t = svgEl(p, 'text', {x:x, y:y, 'font-size':size||12, fill:fill||'#000',
+    'font-family':"'Courier New',monospace", 'text-anchor':anchor||'start'});
   if (bold) t.style.fontWeight = 'bold';
-  t.textContent = content;
+  t.textContent = str;
   return t;
 }
-function dmnd(svg, cx, cy, sz, fill, stroke) {
-  return svgEl(svg, 'polygon', {
+function dmnd(p, cx, cy, sz, fill, stroke) {
+  return svgEl(p, 'polygon', {
     points: cx+','+(cy-sz)+' '+(cx+sz)+','+cy+' '+cx+','+(cy+sz)+' '+(cx-sz)+','+cy,
     fill:fill||'none', stroke:stroke||'#000', 'stroke-width':1.5
   });
 }
-function rct(svg, x, y, w, h) {
-  return svgEl(svg, 'rect', { x:x, y:y, width:w, height:h, fill:'transparent' });
+function hotspot(p, x, y, w, h, tip) {
+  var z = svgEl(p, 'rect', {x:x, y:y, width:w, height:h, fill:'transparent'});
+  z.style.cursor = 'pointer';
+  z.addEventListener('mouseenter', function() { tooltip.innerHTML = tip; tooltip.style.display = 'block'; });
+  z.addEventListener('mousemove',  function(e) { tooltip.style.left=(e.clientX+14)+'px'; tooltip.style.top=(e.clientY-12)+'px'; });
+  z.addEventListener('mouseleave', function() { tooltip.style.display='none'; });
+  return z;
 }
 
-// ---- Track drawing ----
-function drawTracks(svg, y1, y2, n) {
+function drawTracks(p, y1, y2, n) {
   if (y2 <= y1) return;
-  var col = '#222', w = 3.5;
+  var col = '#1a1a1a', w = 4;
   if (n === 1) {
-    ln(svg, TX, y1, TX, y2, col, w);
+    ln(p, TX, y1, TX, y2, col, w+1);
   } else if (n === 2) {
-    ln(svg, TX-GAP, y1, TX-GAP, y2, col, w);
-    ln(svg, TX+GAP, y1, TX+GAP, y2, col, w);
+    ln(p, TX-GAP, y1, TX-GAP, y2, col, w);
+    ln(p, TX+GAP, y1, TX+GAP, y2, col, w);
   } else if (n === 3) {
-    ln(svg, TX-GAP*1.4, y1, TX-GAP*1.4, y2, col, w-0.5);
-    ln(svg, TX,         y1, TX,         y2, col, w-0.5);
-    ln(svg, TX+GAP*1.4, y1, TX+GAP*1.4, y2, col, w-0.5);
+    var g = GAP * 1.5;
+    ln(p, TX-g, y1, TX-g, y2, col, w-0.5);
+    ln(p, TX,   y1, TX,   y2, col, w-0.5);
+    ln(p, TX+g, y1, TX+g, y2, col, w-0.5);
   } else {
-    ln(svg, TX-GAP*1.5, y1, TX-GAP*1.5, y2, col, w-1);
-    ln(svg, TX-GAP*0.5, y1, TX-GAP*0.5, y2, col, w-1);
-    ln(svg, TX+GAP*0.5, y1, TX+GAP*0.5, y2, col, w-1);
-    ln(svg, TX+GAP*1.5, y1, TX+GAP*1.5, y2, col, w-1);
+    ln(p, TX-GAP*1.5, y1, TX-GAP*1.5, y2, col, w-1);
+    ln(p, TX-GAP*0.5, y1, TX-GAP*0.5, y2, col, w-1);
+    ln(p, TX+GAP*0.5, y1, TX+GAP*0.5, y2, col, w-1);
+    ln(p, TX+GAP*1.5, y1, TX+GAP*1.5, y2, col, w-1);
   }
 }
 
-// ---- Siding drawing ----
-// side: 'right' = geographic north (right of diagram when traveling LNK->OMA)
-//       'left'  = geographic south
-//       'middle'= between the two mains (double track only)
-function drawSiding(svg, y1, y2, n, name, cap, side) {
+function drawSiding(p, y1, y2, n, name, cap, side) {
   var isDouble = n >= 2;
-  var tLen = Math.min(20, (y2 - y1) * 0.28);
+  var tLen = Math.min(24, (y2-y1) * 0.28);
 
   if (side === 'middle' && isDouble) {
-    // Dashed center track between both mains
-    var mL = TX - GAP, mR = TX + GAP;
-    ln(svg, mL, y1, TX, y1 + tLen, '#555', 1.5);
-    ln(svg, mR, y1, TX, y1 + tLen, '#555', 1.5);
-    ln(svg, TX, y1 + tLen, TX, y2 - tLen, '#888', 2, '6,5');
-    ln(svg, TX, y2 - tLen, mL, y2, '#555', 1.5);
-    ln(svg, TX, y2 - tLen, mR, y2, '#555', 1.5);
-    ci(svg, mL, y1, 3, '#fff', '#666', 1.5);
-    ci(svg, mR, y1, 3, '#fff', '#666', 1.5);
-    ci(svg, mL, y2, 3, '#fff', '#666', 1.5);
-    ci(svg, mR, y2, 3, '#fff', '#666', 1.5);
-    var my = (y1 + y2) / 2;
-    tx(svg, TX + GAP + 10, my - 2, name, 9, '#555', 'start');
-    if (cap) tx(svg, TX + GAP + 10, my + 10, cap, 8, '#999', 'start');
+    var mL = TX-GAP, mR = TX+GAP;
+    ln(p, mL, y1, TX, y1+tLen, '#555', 2);
+    ln(p, mR, y1, TX, y1+tLen, '#555', 2);
+    ln(p, TX, y1+tLen, TX, y2-tLen, '#777', 2.5, '7,5');
+    ln(p, TX, y2-tLen, mL, y2, '#555', 2);
+    ln(p, TX, y2-tLen, mR, y2, '#555', 2);
+    ci(p, mL, y1, 4, '#fff', '#555', 1.5);
+    ci(p, mR, y1, 4, '#fff', '#555', 1.5);
+    ci(p, mL, y2, 4, '#fff', '#555', 1.5);
+    ci(p, mR, y2, 4, '#fff', '#555', 1.5);
+    var my = (y1+y2)/2;
+    txt(p, TX+GAP+12, my-3, name, 11, '#444', 'start');
+    if (cap) txt(p, TX+GAP+12, my+12, cap, 10, '#888', 'start');
     return;
   }
 
-  // Outer siding
-  var outerX = (side === 'left')
-    ? (isDouble ? TX - GAP : TX)
-    : (isDouble ? TX + GAP : TX);
-  var sdgX   = (side === 'left') ? outerX - SOFF : outerX + SOFF;
+  var outerX = (side === 'left') ? (isDouble ? TX-GAP : TX) : (isDouble ? TX+GAP : TX);
+  var sdgX   = (side === 'left') ? outerX-SOFF : outerX+SOFF;
   var anchor = (side === 'left') ? 'end' : 'start';
-  var lx     = (side === 'left') ? sdgX - 8 : sdgX + 8;
+  var lx     = (side === 'left') ? sdgX-10 : sdgX+10;
 
-  ln(svg, outerX, y1, sdgX, y1 + tLen, '#555', 1.5);
-  ln(svg, sdgX,   y1 + tLen, sdgX, y2 - tLen, '#888', 2.5);
-  ln(svg, outerX, y2, sdgX, y2 - tLen, '#555', 1.5);
-  ci(svg, outerX, y1, 3, '#fff', '#666', 1.5);
-  ci(svg, outerX, y2, 3, '#fff', '#666', 1.5);
+  ln(p, outerX, y1, sdgX, y1+tLen, '#555', 2);
+  ln(p, sdgX, y1+tLen, sdgX, y2-tLen, '#777', 3);
+  ln(p, outerX, y2, sdgX, y2-tLen, '#555', 2);
+  ci(p, outerX, y1, 4, '#fff', '#555', 1.5);
+  ci(p, outerX, y2, 4, '#fff', '#555', 1.5);
 
-  var my = (y1 + y2) / 2;
-  tx(svg, lx, my - 2, name, 9, '#555', anchor);
-  if (cap) tx(svg, lx, my + 10, cap, 8, '#999', anchor);
+  var my = (y1+y2)/2;
+  txt(p, lx, my-3, name, 11, '#444', anchor);
+  if (cap) txt(p, lx, my+12, cap, 10, '#888', anchor);
 }
 
-// ---- Crossover (two offset turnouts, not an X) ----
-function drawXO(svg, y, n) {
+function drawXO(p, y, n) {
   if (n < 2) return;
-  var L = TX - GAP, R = TX + GAP, s = 7, g = 4;
-  // upper turnout: left track diagonal to right track
-  ln(svg, L, y - g - s, R, y - g, '#c62828', 2.5);
-  // lower turnout: right track diagonal to left track
-  ln(svg, R, y + g, L, y + g + s, '#c62828', 2.5);
+  var L = TX-GAP, R = TX+GAP, s = 11;
+  ln(p, L, y-s, R, y+s, '#c62828', 3);
+  ln(p, L, y+s, R, y-s, '#c62828', 3);
+  ci(p, TX, y, 4, '#fff', '#c62828', 2);
 }
 
-// ---- Right-column label X ----
-function rLabelX(n) { return TX + (n >= 2 ? GAP : 0) + 18; }
+function rX(n) { return TX + (n >= 2 ? GAP : 0) + 20; }
 
-// ---- Speed color ----
-function speedColor(spd) {
-  if (spd >= 70) return '#1b5e20';
-  if (spd >= 55) return '#2e7d32';
-  if (spd >= 40) return '#e65100';
-  if (spd >= 25) return '#bf360c';
-  return '#c62828';
+function spdColor(s) {
+  if (s >= 70) return '#1b5e20';
+  if (s >= 55) return '#2e7d32';
+  if (s >= 40) return '#e65100';
+  if (s >= 25) return '#bf360c';
+  return '#b71c1c';
 }
 
-// ---- Tooltip ----
-function addTip(el, html) {
-  el.addEventListener('mouseenter', function() { tooltip.innerHTML = html; tooltip.style.display = 'block'; });
-  el.addEventListener('mousemove',  function(e) { tooltip.style.left = (e.clientX+14)+'px'; tooltip.style.top = (e.clientY-12)+'px'; });
-  el.addEventListener('mouseleave', function() { tooltip.style.display = 'none'; });
-}
-
-// ============================================================
-// CREATE SVG for each segment
-// ============================================================
-function createSVG(seg) {
+function buildSegment(seg) {
   var height = TPAD * 2 + seg.totalMiles * PPM;
+
   var wrapper = document.createElement('div');
   wrapper.className = 'segment-wrapper';
   container.appendChild(wrapper);
 
   var hdr = document.createElement('div');
   hdr.className = 'segment-header';
-  hdr.innerHTML = '<span>' + seg.title + '</span><span class="railroad">' +
-    seg.railroad + ' &mdash; ' + seg.subtitle + ' &mdash; ' + seg.totalMiles + ' mi</span>';
+  hdr.innerHTML = '<span>' + seg.title + '</span><span class="sub">' + seg.sub + '</span>';
   wrapper.appendChild(hdr);
 
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -539,187 +555,168 @@ function createSVG(seg) {
 
   var rows = makeRows();
 
-  // ---- Mile markers ----
+  // Mile markers
   for (var m = 0; m <= seg.totalMiles; m++) {
     var my = yOf(m);
     if (m % 5 === 0) {
-      ln(svg, TX - 56, my, TX - 45, my, '#bbb', 1);
-      tx(svg, TX - 58, my + 3, '' + m, 9, '#999', 'end');
+      ln(svg, TX-66, my, TX-52, my, '#bbb', 1.5);
+      txt(svg, TX-70, my+4, ''+m, 11, '#999', 'end');
     } else {
-      ln(svg, TX - 51, my, TX - 45, my, '#ddd', 0.5);
+      ln(svg, TX-62, my, TX-52, my, '#ddd', 1);
     }
   }
 
-  // ---- Build & draw track segments ----
+  // Track segments
   var tSegs = [], tc = 1, ty = yOf(0);
   for (var i = 0; i < seg.features.length; i++) {
     var ff = seg.features[i];
     if (ff.type === 'tracks') {
-      tSegs.push({ y1: ty, y2: yOf(ff.rm), count: tc });
-      tc = ff.count;
-      ty = yOf(ff.rm);
+      tSegs.push({y1:ty, y2:yOf(ff.rm), count:tc});
+      tc = ff.count; ty = yOf(ff.rm);
     }
   }
-  tSegs.push({ y1: ty, y2: yOf(seg.totalMiles), count: tc });
-  for (var j = 0; j < tSegs.length; j++) {
-    drawTracks(svg, tSegs[j].y1, tSegs[j].y2, tSegs[j].count);
-  }
+  tSegs.push({y1:ty, y2:yOf(seg.totalMiles), count:tc});
+  for (var j = 0; j < tSegs.length; j++) drawTracks(svg, tSegs[j].y1, tSegs[j].y2, tSegs[j].count);
 
-  // ---- Draw features ----
+  // Features
   var trackCount = 1;
-  var inSdg = false, sdgY1 = 0, sdgName = '', sdgCap = '', sdgSide = 'right', sdgNote = '';
+  var inSdg = false, sdgY1 = 0, sdgName = '', sdgCap = '', sdgSide = 'right';
 
   for (var k = 0; k < seg.features.length; k++) {
     var f = seg.features[k];
     var fy = yOf(f.rm);
-    var lx = rLabelX(trackCount);
 
-    // --- tracks ---
     if (f.type === 'tracks') {
       trackCount = f.count;
-      lx = rLabelX(trackCount);
       if (f.method) {
         var ly = claimY(fy, 'L', rows);
-        tx(svg, TX - 64, ly + 4, f.method, 9, '#7b1fa2', 'end', true);
+        txt(svg, TX-76, ly+5, f.method, 11, '#7b1fa2', 'end', true);
       }
     }
 
-    // --- speed ---
     if (f.type === 'speed') {
-      var col = speedColor(f.speed);
+      var col = spdColor(f.speed);
       var sy = claimY(fy, 'L', rows);
-      tx(svg, TX - 64, sy + 4, f.speed + ' mph', 10, col, 'end', true);
-      if (f.note) tx(svg, TX - 64, sy + 15, f.note, 8, '#888', 'end');
-      ln(svg, TX - 46, fy, TX - 42, fy, col, 2);
+      txt(svg, TX-76, sy+5, f.speed+' mph', 13, col, 'end', true);
+      if (f.note) txt(svg, TX-76, sy+19, f.note, 9, '#999', 'end');
+      ln(svg, TX-52, fy, TX-48, fy, col, 2);
     }
 
-    // --- station ---
     if (f.type === 'station') {
-      ci(svg, TX, fy, 9, '#d32f2f', '#b71c1c', 2);
-      ci(svg, TX, fy, 3, '#fff', 'none', 0);
+      ci(svg, TX, fy, 11, '#d32f2f', '#b71c1c', 2.5);
+      ci(svg, TX, fy, 4, '#fff', 'none', 0);
+      var rx = rX(trackCount);
       var ry = claimY(fy, 'R', rows);
-      tx(svg, lx, ry + 5, f.name + ' (' + f.code + ')', 14, '#000', 'start', true);
-      if (f.mp)   tx(svg, lx, ry + 18, f.mp, 10, '#555', 'start');
-      if (f.note) tx(svg, lx, ry + 30, f.note, 8, '#888', 'start');
-      var zone = rct(svg, TX - 90, fy - 18, WID, 48);
-      zone.style.cursor = 'pointer';
-      addTip(zone, '<b>' + f.name + ' (' + f.code + ')</b><br>Amtrak Station<br>' +
-        (f.mp || '') + (f.note ? '<br>' + f.note : ''));
+      txt(svg, rx, ry+6, f.name+' ('+f.code+')', 17, '#000', 'start', true);
+      if (f.mp)   txt(svg, rx, ry+21, f.mp, 12, '#555', 'start');
+      if (f.note) txt(svg, rx, ry+35, f.note, 10, '#888', 'start');
+      hotspot(svg, TX-100, fy-20, WID, 56,
+        '<b>'+f.name+' ('+f.code+')</b><br>Amtrak Station<br>'+(f.mp||'')+(f.note?'<br>'+f.note:''));
     }
 
-    // --- control point ---
     if (f.type === 'cp') {
-      dmnd(svg, TX, fy, 6, '#1565c0', '#0d47a1');
+      dmnd(svg, TX, fy, 8, '#1565c0', '#0d47a1');
       if (f.crossover) drawXO(svg, fy, trackCount);
+      var rx = rX(trackCount);
       var ry = claimY(fy, 'R', rows);
-      tx(svg, lx, ry + 4, f.name, 10, '#1565c0', 'start', true);
-      if (f.mp)   tx(svg, lx, ry + 15, f.mp, 8, '#888', 'start');
-      if (f.note) tx(svg, lx, ry + (f.mp ? 25 : 15), f.note, 8, '#888', 'start');
-      var zone = rct(svg, TX - 80, fy - 12, WID, 36);
-      zone.style.cursor = 'pointer';
-      addTip(zone, '<b>' + f.name + '</b><br>Control Point<br>' + (f.mp || '') +
-        (f.crossover ? '<br>Crossover' : '') + (f.note ? '<br>' + f.note : ''));
+      txt(svg, rx, ry+5, f.name, 13, '#1565c0', 'start', true);
+      if (f.mp)   txt(svg, rx, ry+19, f.mp, 11, '#777', 'start');
+      if (f.note) txt(svg, rx, ry+(f.mp?31:19), f.note, 10, '#999', 'start');
+      hotspot(svg, TX-90, fy-14, WID, 42,
+        '<b>'+f.name+'</b><br>Control Point<br>'+(f.mp||'')+(f.crossover?'<br>Crossover':'')+(f.note?'<br>'+f.note:''));
     }
 
-    // --- crossover (standalone) ---
     if (f.type === 'crossover') {
       drawXO(svg, fy, trackCount);
+      var rx = rX(trackCount);
       var ry = claimY(fy, 'R', rows);
-      tx(svg, lx, ry + 4, f.name, 9, '#c62828', 'start');
-      if (f.mp) tx(svg, lx, ry + 15, f.mp, 8, '#888', 'start');
+      txt(svg, rx, ry+5, f.name, 12, '#c62828', 'start');
+      if (f.mp) txt(svg, rx, ry+18, f.mp, 10, '#999', 'start');
     }
 
-    // --- waypoint / location ---
     if (f.type === 'point') {
-      var tw = trackCount >= 2 ? GAP + 5 : 7;
-      ln(svg, TX - tw, fy, TX + tw, fy, '#aaa', 1);
+      var tw = trackCount >= 2 ? GAP+6 : 8;
+      ln(svg, TX-tw, fy, TX+tw, fy, '#bbb', 1.5);
+      var rx = rX(trackCount);
       var ry = claimY(fy, 'R', rows);
-      tx(svg, lx, ry + 4, f.name, 10, '#333', 'start');
-      if (f.mp)   tx(svg, lx, ry + 15, f.mp, 8, '#999', 'start');
-      if (f.note) tx(svg, lx, ry + (f.mp ? 25 : 15), f.note, 8, '#aaa', 'start');
-      var zone = rct(svg, TX - 50, fy - 10, WID, 26);
-      zone.style.cursor = 'pointer';
-      addTip(zone, '<b>' + f.name + '</b>' + (f.mp ? '<br>' + f.mp : '') +
-        (f.note ? '<br>' + f.note : ''));
+      txt(svg, rx, ry+5, f.name, 12, '#222', 'start');
+      if (f.mp)   txt(svg, rx, ry+18, f.mp, 10, '#888', 'start');
+      if (f.note) txt(svg, rx, ry+(f.mp?29:18), f.note, 9, '#aaa', 'start');
+      hotspot(svg, TX-55, fy-12, WID, 32,
+        '<b>'+f.name+'</b>'+(f.mp?'<br>'+f.mp:'')+(f.note?'<br>'+f.note:''));
     }
 
-    // --- bridge ---
     if (f.type === 'bridge') {
-      var bxArr = trackCount >= 2 ? [TX - GAP, TX + GAP] : [TX];
+      var bxArr = trackCount >= 2 ? [TX-GAP, TX+GAP] : [TX];
       for (var bi = 0; bi < bxArr.length; bi++) {
         var bx = bxArr[bi];
-        var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        p.setAttribute('d', 'M' + (bx - 28) + ',' + fy + ' Q' + bx + ',' + (fy - 10) + ' ' + (bx + 28) + ',' + fy);
-        p.setAttribute('fill', 'none');
-        p.setAttribute('stroke', '#1976d2');
-        p.setAttribute('stroke-width', '3');
-        svg.appendChild(p);
+        var pp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pp.setAttribute('d', 'M'+(bx-30)+','+fy+' Q'+bx+','+(fy-12)+' '+(bx+30)+','+fy);
+        pp.setAttribute('fill', 'none');
+        pp.setAttribute('stroke', '#1976d2');
+        pp.setAttribute('stroke-width', '4');
+        svg.appendChild(pp);
       }
+      var rx = rX(trackCount);
       var ry = claimY(fy, 'R', rows);
-      tx(svg, lx, ry + 4, f.name, 10, '#1565c0', 'start', true);
-      if (f.mp) tx(svg, lx, ry + 15, f.mp, 8, '#888', 'start');
+      txt(svg, rx, ry+5, f.name, 12, '#1565c0', 'start', true);
+      if (f.mp) txt(svg, rx, ry+18, f.mp, 10, '#888', 'start');
     }
 
-    // --- subdivision boundary ---
     if (f.type === 'subdiv') {
-      var sw = trackCount >= 2 ? GAP + 32 : 32;
-      ln(svg, TX - sw, fy, TX + sw, fy, '#e65100', 1.5, '4,3');
-      tx(svg, TX - sw - 4, fy - 5, f.name, 8, '#e65100', 'end', true);
+      var sw = trackCount >= 2 ? GAP+38 : 38;
+      ln(svg, TX-sw, fy, TX+sw, fy, '#e65100', 2, '5,4');
+      txt(svg, TX-sw-5, fy-7, f.name, 9, '#e65100', 'end', true);
     }
 
-    // --- siding start/end ---
     if (f.type === 'siding_start') {
-      inSdg = true;
-      sdgY1   = fy;
-      sdgName = f.name     || '';
-      sdgCap  = f.capacity || '';
-      sdgSide = f.side     || 'right';
-      sdgNote = f.note     || '';
+      inSdg=true; sdgY1=fy; sdgName=f.name||''; sdgCap=f.capacity||''; sdgSide=f.side||'right';
     }
     if (f.type === 'siding_end' && inSdg) {
-      inSdg = false;
+      inSdg=false;
       drawSiding(svg, sdgY1, fy, trackCount, sdgName, sdgCap, sdgSide);
     }
   }
 }
 
-segments.forEach(function(s) { createSVG(s); });
+segments.forEach(buildSegment);
 
 // ============================================================
-// ZOOM & PRINT
+// ZOOM + PRINT
 // ============================================================
 (function() {
-  var zoom = 1, MIN = 0.2, MAX = 4, STEP = 0.2;
+  var zoom=1, MIN=0.2, MAX=3, STEP=0.15;
   var mapEl = document.getElementById('map-container');
   var lbl   = document.getElementById('zoom-label');
 
   function apply() {
     zoom = Math.max(MIN, Math.min(MAX, zoom));
-    mapEl.style.transform = 'scale(' + zoom + ')';
-    mapEl.style.width = (100 / zoom) + '%';
-    lbl.textContent = Math.round(zoom * 100) + '%';
+    mapEl.style.transform = 'scale('+zoom+')';
+    mapEl.style.transformOrigin = 'top left';
+    mapEl.style.width = (100/zoom)+'%';
+    lbl.textContent = Math.round(zoom*100)+'%';
   }
 
-  document.getElementById('zoom-in').addEventListener('click',    function() { zoom += STEP; apply(); });
-  document.getElementById('zoom-out').addEventListener('click',   function() { zoom -= STEP; apply(); });
-  document.getElementById('zoom-reset').addEventListener('click', function() { zoom = 1; apply(); });
-  document.getElementById('zoom-fit').addEventListener('click', function() {
-    var avail = mapEl.parentElement.clientWidth - 40;
-    zoom = avail / WID;
+  document.getElementById('zoom-in').onclick    = function() { zoom+=STEP; apply(); };
+  document.getElementById('zoom-out').onclick   = function() { zoom-=STEP; apply(); };
+  document.getElementById('zoom-reset').onclick = function() { zoom=1; apply(); };
+  document.getElementById('zoom-fit').onclick   = function() {
+    zoom = (document.getElementById('page-wrap').clientWidth - 48) / WID;
     apply();
-  });
-  document.getElementById('btn-print').addEventListener('click', function() {
-    var prev = zoom; zoom = 1; apply();
-    setTimeout(function() { window.print(); zoom = prev; apply(); }, 100);
-  });
+  };
+  document.getElementById('btn-print').onclick  = function() {
+    var prev=zoom; zoom=1; apply();
+    setTimeout(function() { window.print(); zoom=prev; apply(); }, 150);
+  };
+
   document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey||e.metaKey) && (e.key==='='||e.key==='+')) { e.preventDefault(); zoom+=STEP; apply(); }
-    else if ((e.ctrlKey||e.metaKey) && e.key==='-') { e.preventDefault(); zoom-=STEP; apply(); }
-    else if ((e.ctrlKey||e.metaKey) && e.key==='0') { e.preventDefault(); zoom=1; apply(); }
+    if ((e.ctrlKey||e.metaKey)&&(e.key==='='||e.key==='+')){e.preventDefault();zoom+=STEP;apply();}
+    else if((e.ctrlKey||e.metaKey)&&e.key==='-'){e.preventDefault();zoom-=STEP;apply();}
+    else if((e.ctrlKey||e.metaKey)&&e.key==='0'){e.preventDefault();zoom=1;apply();}
   });
   mapEl.addEventListener('wheel', function(e) {
-    if (e.ctrlKey||e.metaKey) { e.preventDefault(); zoom+=(e.deltaY<0?STEP:-STEP); apply(); }
-  }, { passive: false });
+    if (e.ctrlKey||e.metaKey){e.preventDefault();zoom+=(e.deltaY<0?STEP:-STEP);apply();}
+  }, {passive:false});
 })();
 </script>
 </body>
