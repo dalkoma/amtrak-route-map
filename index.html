@@ -643,10 +643,16 @@ function buildSegment(seg) {
     var fy = yOf(f.rm);
 
     if (f.type === 'tracks') {
+      var prevCount = trackCount;
       trackCount = f.count;
       if (f.method) {
         var ly = claimY(fy, 'L', rows);
         txt(svg, TX-76, ly+5, f.method, 11, '#7b1fa2', 'end', true);
+      }
+      // M1 / M2 labels at the top of each 2MT section entering from single
+      if (f.count === 2 && prevCount !== 2) {
+        txt(svg, TX-GAP-5, fy+14, 'M1', 9, '#bbb', 'end');
+        txt(svg, TX+GAP+5, fy+14, 'M2', 9, '#bbb', 'start');
       }
     }
 
