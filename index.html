@@ -458,6 +458,45 @@ function hotspot(p, x, y, w, h, tip) {
   return z;
 }
 
+function getTrackXs(n) {
+  if (n === 1) return [TX];
+  if (n === 2) return [TX-GAP, TX+GAP];
+  if (n === 3) { var g=GAP*1.5; return [TX-g, TX, TX+g]; }
+  return [TX-GAP*1.5, TX-GAP*0.5, TX+GAP*0.5, TX+GAP*1.5];
+}
+
+// Draw convergence/divergence lines at a track-count transition.
+// Draws at y (the boundary), connecting fromN tracks to toN tracks.
+function drawTransition(p, y, fromN, toN) {
+  var col = '#1a1a1a', w = 3.5, len = 14;
+  var fromXs = getTrackXs(fromN);
+  var toXs   = getTrackXs(toN);
+  var drawn  = {};
+
+  function nearest(xs, val) {
+    var best = xs[0];
+    for (var i = 1; i < xs.length; i++) {
+      if (Math.abs(xs[i]-val) < Math.abs(best-val)) best = xs[i];
+    }
+    return best;
+  }
+
+  // Each fromX to its nearest toX
+  for (var i = 0; i < fromXs.length; i++) {
+    var fx = fromXs[i], tx_ = nearest(toXs, fx);
+    if (Math.abs(fx-tx_) > 1) {
+      var k = fx+'_'+tx_; if (!drawn[k]) { drawn[k]=1; ln(p,fx,y,tx_,y+len,col,w); }
+    }
+  }
+  // Each toX to its nearest fromX (catches diverging cases)
+  for (var j = 0; j < toXs.length; j++) {
+    var tx2 = toXs[j], fx2 = nearest(fromXs, tx2);
+    if (Math.abs(tx2-fx2) > 1) {
+      var k2 = fx2+'_'+tx2; if (!drawn[k2]) { drawn[k2]=1; ln(p,fx2,y,tx2,y+len,col,w); }
+    }
+  }
+}
+
 function drawTracks(p, y1, y2, n) {
   if (y2 <= y1) return;
   var col = '#1a1a1a', w = 4;
@@ -577,6 +616,11 @@ function buildSegment(seg) {
   }
   tSegs.push({y1:ty, y2:yOf(seg.totalMiles), count:tc});
   for (var j = 0; j < tSegs.length; j++) drawTracks(svg, tSegs[j].y1, tSegs[j].y2, tSegs[j].count);
+  // Draw convergence/divergence at every track count change
+  for (var jj = 1; jj < tSegs.length; jj++) {
+    if (tSegs[jj].count !== tSegs[jj-1].count)
+      drawTransition(svg, tSegs[jj].y1, tSegs[jj-1].count, tSegs[jj].count);
+  }
 
   // Features
   var trackCount = 1;
