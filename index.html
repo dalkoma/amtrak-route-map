@@ -466,9 +466,15 @@ function getTrackXs(n) {
 }
 
 // Draw convergence/divergence lines at a track-count transition.
-// Draws at y (the boundary), connecting fromN tracks to toN tracks.
+//
+// CONVERGING (more→fewer): diagonals go FROM y (end of wide section)
+//   DOWN to y+len (into the narrow section). Outer tracks funnel inward.
+//
+// DIVERGING (fewer→more): diagonals go FROM y-len (within the narrow section)
+//   DOWN to y (start of wide section). Single track fans outward BEFORE the
+//   wider section begins — prevents offshoots from the narrow track endpoint.
 function drawTransition(p, y, fromN, toN) {
-  var col = '#1a1a1a', w = 3.5, len = 14;
+  var col = '#1a1a1a', w = 3.5, len = 10;
   var fromXs = getTrackXs(fromN);
   var toXs   = getTrackXs(toN);
   var drawn  = {};
@@ -481,18 +487,24 @@ function drawTransition(p, y, fromN, toN) {
     return best;
   }
 
-  // Each fromX to its nearest toX
-  for (var i = 0; i < fromXs.length; i++) {
-    var fx = fromXs[i], tx_ = nearest(toXs, fx);
-    if (Math.abs(fx-tx_) > 1) {
-      var k = fx+'_'+tx_; if (!drawn[k]) { drawn[k]=1; ln(p,fx,y,tx_,y+len,col,w); }
+  if (fromN > toN) {
+    // CONVERGING: each wider fromX → nearest narrower toX, drawn y→y+len
+    for (var i = 0; i < fromXs.length; i++) {
+      var fx = fromXs[i], tx_ = nearest(toXs, fx);
+      if (Math.abs(fx-tx_) > 1) {
+        var k = fx+'_'+tx_;
+        if (!drawn[k]) { drawn[k]=1; ln(p, fx, y, tx_, y+len, col, w); }
+      }
     }
-  }
-  // Each toX to its nearest fromX (catches diverging cases)
-  for (var j = 0; j < toXs.length; j++) {
-    var tx2 = toXs[j], fx2 = nearest(fromXs, tx2);
-    if (Math.abs(tx2-fx2) > 1) {
-      var k2 = fx2+'_'+tx2; if (!drawn[k2]) { drawn[k2]=1; ln(p,fx2,y,tx2,y+len,col,w); }
+  } else {
+    // DIVERGING: each wider toX ← nearest narrower fromX, drawn y-len→y
+    // Lines emerge from within the narrow section and arrive at the wide section start.
+    for (var j = 0; j < toXs.length; j++) {
+      var tx2 = toXs[j], fx2 = nearest(fromXs, tx2);
+      if (Math.abs(tx2-fx2) > 1) {
+        var k2 = fx2+'_'+tx2;
+        if (!drawn[k2]) { drawn[k2]=1; ln(p, fx2, y-len, tx2, y, col, w); }
+      }
     }
   }
 }
